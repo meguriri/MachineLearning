@@ -1,5 +1,6 @@
 # %%
 from math import log2
+import zerorpc
 import operator
 import pickle
 import pandas as pd
@@ -328,16 +329,43 @@ def getTree(fileName):
   f.close()
   return tree
 
+def newTest(tree,testFilePath,labels,labelType):
+  testDataset = pd.read_csv(testFilePath,header=None,sep=', ')
+  testDataset = testDataset[~testDataset.isin(['?']).any(axis=1)]  
+  testDataset = testDataset.values.tolist()
+  #cleanoutdata(dataset)
+  # del(dataset[0])
+  # del(dataset[-1])
+  testList = []
+  # clean(testDataset,dataset)
+  total = len(testDataset)
+  for line in testDataset:
+    result = classify(tree,line,labels,labelType)+'.'
+    testList.append(result)
+  return testList
 # %%
 def main():
-  # dateset, labels ,labelType= createDataset('./adult/adult.data')
-  dateset, labels ,labelType= createDataset('./adult/adult.data')
+  # # dataset, labels ,labelType= createDataset('./adult/adult.data')
+  # dataset, labels ,labelType= createDataset('./adult/adult_mini.data')
+  # nowLabels = labels[:]
+  # nowLabelType =labelType[:]
+  # tree = train(dataset, nowLabels ,nowLabelType)
+  # storeTree(tree,'./model/tree.txt')
+  # # tree = getTree('./model/true.txt')
+  # test(tree,'./adult/adult.test',labels,labelType,dateset)
+  # 创建RPC客户端
+  client = zerorpc.Client()
+  client.connect("tcp://127.0.0.1:4242")  # 连接到服务器地址
+  
+  # 调用远程函数
+  dataset,labels,labelType = client.getDataSet()
+  print('get dataset',dataset)
   nowLabels = labels[:]
   nowLabelType =labelType[:]
-  tree = train(dateset, nowLabels ,nowLabelType)
-  storeTree(tree,'./model/tree.txt')
-  # tree = getTree('./model/true.txt')
-  test(tree,'./adult/adult.test',labels,labelType,dateset)
+  tree = train(dataset, nowLabels ,nowLabelType)
+  print('train ok')
+  testList = newTest(tree,'./adult/adult.test',labels,labelType)
+  client.commitTest(testList)
 
 main()
 

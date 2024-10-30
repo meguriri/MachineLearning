@@ -149,7 +149,7 @@ def majority(classList):
   for i in classList:
     if i not in classficationCount.keys():
       classficationCount[i] = 0
-    classficationCount += 1
+    classficationCount[i] += 1
   sortedClassCount = sorted(dict2list(classficationCount),key= operator.itemgetter(1),reverse=True)
   return sortedClassCount[0][0]
 
@@ -192,6 +192,8 @@ def createTree(dataset,labels,labelType):
     print('no features',majority(classificationList))
     return majority(classificationList)
   bestFeatureIdx,bestSplitPoint,isContinuous = chooseBestSplit(dataset,labelType)
+  if bestFeatureIdx == -1:# gain等于0
+    return majority(classificationList)
   bestFeature = labels[bestFeatureIdx]
   print(bestFeature)
   tree = {bestFeature:{}}
@@ -329,11 +331,11 @@ def getTree(fileName):
 # %%
 def main():
   # dateset, labels ,labelType= createDataset('./adult/adult.data')
-  dateset, labels ,labelType= createDataset('./adult/adult_mini.data')
+  dateset, labels ,labelType= createDataset('./adult/adult.data')
   nowLabels = labels[:]
   nowLabelType =labelType[:]
   tree = train(dateset, nowLabels ,nowLabelType)
-  storeTree(tree,'./model/minitree.txt')
+  storeTree(tree,'./model/tree.txt')
   # tree = getTree('./model/true.txt')
   test(tree,'./adult/adult.test',labels,labelType,dateset)
 

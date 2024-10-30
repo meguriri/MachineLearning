@@ -2,6 +2,7 @@ import zerorpc
 import pandas as pd
 import argparse
 import random
+import threading
 
 def createSampleDataset(filename,batchSize):
     labels = ['age', 'workclass', 'fnlwgt', 'education', 'education-num',
@@ -14,7 +15,7 @@ def createSampleDataset(filename,batchSize):
                  'uncontinuous', 'uncontinuous', 'uncontinuous',
                  'uncontinuous', 'continuous', 'continuous',
                  'continuous', 'uncontinuous']
-    random_numbers = random.sample(range(0, len(labelType)), 5)
+    random_numbers = random.sample(range(0, len(labelType)), 4)
     dataset = pd.read_csv(filename, header=None, sep=', ',engine='python')
     dataset = dataset[~dataset.isin(['?']).any(axis=1)]
     dataset = dataset.sample(n=batchSize)
@@ -50,24 +51,66 @@ def getAnswer(testList):
             error += 1
     print('Correct: {},Error: {},Accuracy: {}'.format(correct, error, correct / len(testDataset)))
 
-class MyRPCServer:
-    testList = []
-    def __init__(self,filePath,clientNum, batchSize):
+class Manager:
+    def __init__(self,filePath,clientNum,batchSize):
+        self.testList = []
+        self.ok = 0
         self.filePath = filePath
         self.clientNum = clientNum
+        self.lock = threading.Lock()
         self.batchSize = batchSize
+        # self.dataLoaded = False
+        # self.loadAndSplitData(self,filePath)
 
     def getDataSet(self):
-        dataset, labels, labelType = createSampleDataset(self.filePath,self.batchSize)
-        return dataset, labels, labelType
+        # with self.lock:
+            if self.ok == self.clientNum:
+                return None
+            dataset, labels, labelType = createSampleDataset(self.filePath,self.batchSize)
+            return dataset, labels, labelType
 
     def commitTest(self, test):
-        self.testList.append(test)
-        # print('get test', test)
-        if len(self.testList) == self.clientNum:
-            print('all test is ok')
-            getAnswer(self.testList)
-            # raise SystemExit  # 或者其他方法关闭服务器
+        # with self.lock:
+            self.ok+=1
+            self.testList.append(test)
+            print('now ok:',self.ok)
+            # print('get test', test)
+            if self.ok == self.clientNum:
+                print('all test is ok')
+                getAnswer(self.testList)
+                # self.stop()
+
+    def stop(self):    
+        self.server.close()
+        print('server is close')
+
+    def run(self):
+        self.server = zerorpc.Server(self)
+        self.server.bind("tcp://192.168.235.205:4242")
+        print('server is start,wait connect...')
+        self.server.run()
+
+# class MyRPCServer:
+#     testList = []
+#     ok = 0
+#     def __init__(self,filePath,clientNum, batchSize):
+#         self.filePath = filePath
+#         self.clientNum = clientNum
+#         self.batchSize = batchSize
+
+#     def getDataSet(self):
+#         dataset, labels, labelType = createSampleDataset(self.filePath,self.batchSize)
+#         return dataset, labels, labelType
+
+#     def commitTest(self, test):
+#         self.ok+=1
+#         self.testList.append(test)
+#         print('now ok:',self.ok)
+#         # print('get test', test)
+#         if len(self.testList) == self.clientNum:
+#             print('all test is ok')
+#             getAnswer(self.testList)
+#             # raise SystemExit  # 或者其他方法关闭服务器
 
 if __name__ == '__main__':
     # 创建 ArgumentParser 对象
@@ -79,9 +122,12 @@ if __name__ == '__main__':
     # 解析命令行参数
     args = parser.parse_args()
 
-    # 创建RPC服务器
-    server = zerorpc.Server(MyRPCServer(args.dataset,args.num,args.batch))
-    server.bind("tcp://0.0.0.0:4242")
-    # 启动服务器
-    server.run()
+    manager = Manager(args.dataset,args.num,args.batch)
+    manager.run()
+    # # 创建RPC服务器
+    # server = zerorpc.Server(MyRPCServer(args.dataset,args.num,args.batch))
+    # server.bind("tcp://192.168.235.205:4242")
+    # # 启动服务器
+    # server.run()
+
 

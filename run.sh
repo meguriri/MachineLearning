@@ -1,5 +1,5 @@
 # 默认子节点个数
-num_nodes=25
+num_nodes=3
 
 # 启动主节点
 # python3 server.py -d './adult/adult.data' -n 10 -b 1000 &
@@ -11,9 +11,9 @@ num_nodes=25
 # 运行同一个脚本 num_nodes 次
 for i in $(seq 1 $num_nodes); do
     python3 client.py &
-    # pid=$!  # 获取后台进程的PID
-    # wait $pid  # 等待当前进程完成
-    # echo "运行成功: 实例 $i 完成"
+    pid=$!  # 获取后台进程的PID
+    wait $pid  # 等待当前进程完成
+    echo "运行成功: 实例 $i 完成"
 done
 
 wait

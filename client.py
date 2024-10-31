@@ -14,7 +14,7 @@ labelType = ['continuous', 'uncontinuous', 'continuous',
                  'continuous', 'uncontinuous']
 
 class Worker:
-    def __init__(self,server_address="tcp://192.168.235.205:4242"):
+    def __init__(self,server_address="tcp://0.0.0.0:4242"):
         self.client = zerorpc.Client()
         self.client.connect(server_address)
     def train_model(self,sampleDataset,sampleLabels,sampleLabelType):
@@ -30,11 +30,15 @@ class Worker:
             sampleDataset, sampleLabels, sampleLabelType = self.client.getDataSet()
             if sampleDataset is None:
                 break
+            print('get dataset ok')
             tree = self.train_model(sampleDataset,sampleLabels,sampleLabelType)
             print('train ok')
             testList = t.newTest(tree, './adult/adult.test', labels, labelType)
             self.client.commitTest(testList)
             print('commit test ok')
+            del(tree)
+            del(sampleDataset)
+            del(testList)
             i+=1
 # 创建RPC客户端
 # client = zerorpc.Client()

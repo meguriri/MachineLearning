@@ -358,14 +358,14 @@ def newTest(tree, testFilePath, labels, labelType):
 # %%
 def main():
     # dataset, labels ,labelType= createDataset('./adult/adult.data')
-    dataset, labels ,labelType= createDataset('../adult/adult.data')
-    nowLabels = labels[:]
-    nowLabelType =labelType[:]
-    print('start train')
-    tree = train(dataset, nowLabels ,nowLabelType)
-    storeTree(tree,'../model/tree.txt')
-    # tree = getTree('./model/true.txt')
-    test(tree,'../adult/adult.test',labels,labelType,dataset)
+    dataset, labels ,labelType= createDataset('./adult/adult.data')
+    # nowLabels = labels[:]
+    # nowLabelType =labelType[:]
+    # print('start train')
+    # tree = train(dataset, nowLabels ,nowLabelType)
+    # storeTree(tree,'./model/tree.txt')
+    tree = getTree('./model/tree.txt')
+    test(tree,'./adult/adult.test',labels,labelType,dataset)
 
 
-# main()
+main()

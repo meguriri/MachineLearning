@@ -1,5 +1,5 @@
 # 默认子节点个数
-num_nodes=3
+num_nodes=1
 
 # 启动主节点
 # python3 server.py -d './adult/adult.data' -n 10 -b 1000 &

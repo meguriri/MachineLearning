@@ -15,15 +15,9 @@ def cleanDataset(dataset):
 
 
 def createDataset(filename):
-    # with open(filename,'r') as csvfile:
-    # dataset = [row.strip().split(', ') for row in csvfile.readlines()]
-    # dataset = [[int(i) if i.isdigit() else i for i in row] for row in dataset]
     dataset = pd.read_csv(filename, header=None, sep=', ',engine='python')
     dataset = dataset[~dataset.isin(['?']).any(axis=1)]
     dataset = dataset.values.tolist()
-    # dataset = [[int(i) if i.isdigit() else i for i in row] for row in dataset]
-    # cleanDataset(dataset)
-    # del(dataset[-1])
     labels = ['age', 'workclass', 'fnlwgt', 'education', 'education-num',
               'marital-status', 'occupation',
               'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week',
@@ -36,8 +30,6 @@ def createDataset(filename):
                  'continuous', 'uncontinuous']
     return dataset, labels, labelType
 
-
-# dataset,labels,labelType = createDataset('adult/adult.data')
 
 
 # %%
@@ -209,12 +201,6 @@ def createTree(dataset, labels, labelType):
         biggerDataset, smallerDataset = splitContinuousDataset(dataset, bestFeatureIdx, bestSplitPoint)
         subLabels = labels[:]
         subLabelType = labelType[:]
-        # #####TODO
-        # print(bestFeature, end=': ')
-        # print('>' + str(bestSplitPoint), end=' ')
-        # print('<=' + str(bestSplitPoint), end=' ')
-        # print('\n', end='')
-        # #####
         tree[bestFeature]['>' + str(bestSplitPoint)] = createTree(biggerDataset, subLabels, subLabelType)
         subLabels = labels[:]
         subLabelType = labelType[:]
@@ -223,12 +209,6 @@ def createTree(dataset, labels, labelType):
         # 获取最优特征的全部类别
         featureList = [vex[bestFeatureIdx] for vex in dataset]
         uniqueFeature = set(featureList)
-        # #####TODO
-        # print(bestFeature, end=': ')
-        # for feature in uniqueFeature:
-        #     print(feature, end=' ')
-        # print('\n', end='')
-        # #####
         for feature in uniqueFeature:
             subLabels = labels[:]
             subLabelType = labelType[:]
@@ -297,9 +277,6 @@ def test(tree, testFilePath, labels, labelType, dataset):
     testDataset = pd.read_csv(testFilePath, header=None, sep=', ',engine='python')
     testDataset = testDataset[~testDataset.isin(['?']).any(axis=1)]
     testDataset = testDataset.values.tolist()
-    # cleanoutdata(dataset)
-    # del(dataset[0])
-    # del(dataset[-1])
     clean(testDataset, dataset)
     total = len(testDataset)
     correct = 0
@@ -321,7 +298,6 @@ def test(tree, testFilePath, labels, labelType, dataset):
 # %%
 def train(dataset, labels, labelType):
     tree = createTree(dataset, labels, labelType)
-    # print(tree)
     return tree
 
 
@@ -343,11 +319,7 @@ def newTest(tree, testFilePath, labels, labelType):
     testDataset = pd.read_csv(testFilePath, header=None, sep=', ',engine='python')
     testDataset = testDataset[~testDataset.isin(['?']).any(axis=1)]
     testDataset = testDataset.values.tolist()
-    # cleanoutdata(dataset)
-    # del(dataset[0])
-    # del(dataset[-1])
     testList = []
-    # clean(testDataset,dataset)
     total = len(testDataset)
     for line in testDataset:
         result = classify(tree, line, labels, labelType) + '.'
@@ -357,7 +329,6 @@ def newTest(tree, testFilePath, labels, labelType):
 
 # %%
 def main():
-    # dataset, labels ,labelType= createDataset('./adult/adult.data')
     dataset, labels ,labelType= createDataset('../adult/adult.data')
     nowLabels = labels[:]
     nowLabelType =labelType[:]
@@ -366,6 +337,3 @@ def main():
     storeTree(tree,'../model/tree.txt')
     # tree = getTree('./model/true.txt')
     test(tree,'../adult/adult.test',labels,labelType,dataset)
-
-
-# main()

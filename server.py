@@ -3,30 +3,12 @@ import pandas as pd
 import argparse
 import random
 import threading
+from tree import labels,labelType,forestTest
 import tree as t
 
-labels = ['age', 'workclass', 'fnlwgt', 'education', 'education-num',
-              'marital-status', 'occupation',
-              'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week',
-              'native-country']
-labelType = ['continuous', 'uncontinuous', 'continuous',
-                 'uncontinuous',
-                 'continuous', 'uncontinuous',
-                 'uncontinuous', 'uncontinuous', 'uncontinuous',
-                 'uncontinuous', 'continuous', 'continuous',
-                 'continuous', 'uncontinuous']
+
 
 def createSampleDataset(filename,batchSize):
-    labels = ['age', 'workclass', 'fnlwgt', 'education', 'education-num',
-              'marital-status', 'occupation',
-              'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week',
-              'native-country']
-    labelType = ['continuous', 'uncontinuous', 'continuous',
-                 'uncontinuous',
-                 'continuous', 'uncontinuous',
-                 'uncontinuous', 'uncontinuous', 'uncontinuous',
-                 'uncontinuous', 'continuous', 'continuous',
-                 'continuous', 'uncontinuous']
     random_numbers = random.sample(range(0, len(labelType)), 4)
     dataset = pd.read_csv(filename, header=None, sep=', ',engine='python')
     dataset = dataset[~dataset.isin(['?']).any(axis=1)]
@@ -102,50 +84,6 @@ class Manager:
         print('server is start,wait connect...')
         self.server.run()
 
-# class MyRPCServer:
-#     testList = []
-#     ok = 0
-#     def __init__(self,filePath,clientNum, batchSize):
-#         self.filePath = filePath
-#         self.clientNum = clientNum
-#         self.batchSize = batchSize
-
-#     def getDataSet(self):
-#         dataset, labels, labelType = createSampleDataset(self.filePath,self.batchSize)
-#         return dataset, labels, labelType
-
-#     def commitTest(self, test):
-#         self.ok+=1
-#         self.testList.append(test)
-#         print('now ok:',self.ok)
-#         # print('get test', test)
-#         if len(self.testList) == self.clientNum:
-#             print('all test is ok')
-#             getAnswer(self.testList)
-#             # raise SystemExit  # 或者其他方法关闭服务器
-
-def forestTest(forest):
-    testDataset = pd.read_csv('./adult/adult.test', header=None, sep=', ',engine='python')
-    testDataset = testDataset[~testDataset.isin(['?']).any(axis=1)]
-    testDataset = testDataset.values.tolist()
-    correct = 0
-    error = 0
-    for i in range(len(testDataset)):
-        c1 = 0
-        c2 = 0
-        for tree in forest:
-            classLabel = t.classify(tree,testDataset[i],labels,labelType)
-            if classLabel == '<=50K.':
-                c1+=1
-            else:
-                c2+=1
-        answer = '<=50K.' if c1 > c2 else '>50K.'
-        if answer == testDataset[i][-1]:
-            correct += 1
-        else:
-            error += 1
-    print('Correct: {},Error: {},Accuracy: {}'.format(correct, error, correct / len(testDataset)))
-
 if __name__ == '__main__':
     # 创建 ArgumentParser 对象
     parser = argparse.ArgumentParser()
@@ -157,23 +95,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     manager = Manager(args.dataset,args.num,args.batch)
-    forest = []
     manager.run()
-    # for i in range(args.num):
-    # sampleDataset, sampleLabels, sampleLabelType = manager.getDataSet()
-    # nowLabels = sampleLabels[:]
-    # nowLabelType = sampleLabelType[:]
-    # print('start',args.num)
-    # tree = t.train(sampleDataset, nowLabels, nowLabelType)
-    # print('train ok',args.num)
-    # t.storeTree(tree,'./model/tree_'+str(args.num))
-    # forest.append(tree)
-    
-    # forestTest(forest)
-    # # 创建RPC服务器
-    # server = zerorpc.Server(MyRPCServer(args.dataset,args.num,args.batch))
-    # server.bind("tcp://192.168.235.205:4242")
-    # # 启动服务器
-    # server.run()
 
 

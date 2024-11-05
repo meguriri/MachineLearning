@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package Model;
+
+message GetDataSetRequest {
+  int32 id = 1;
+}
+
+message GetDataSetResponse {
+  message Rowdata {
+    repeated string row = 1;
+  }
+  repeated Rowdata data = 1;
+  repeated string labels = 2;
+  repeated string labelType = 3;
+}
+
+message TreeNode {
+  string feature = 1;
+  oneof value {
+    string result = 2;                       
+    Branch branches = 3;  
+  }
+}
+
+message Branch {
+  map<string, TreeNode> branches = 1;  // 子节点的递归定义
+}
+
+message CommitTreeRequest {
+  map<string, TreeNode> tree = 1;
+}
+
+message CommitTreeResponse {
+  bool ok = 1;
+}
+
+service Manager {
+  rpc GetDataSet(GetDataSetRequest) returns(GetDataSetResponse);
+  rpc CommitTree(CommitTreeRequest) returns(CommitTreeResponse);
+}

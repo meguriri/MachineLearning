@@ -13,10 +13,32 @@ labelType = ['continuous', 'uncontinuous', 'continuous',
                  'uncontinuous', 'continuous', 'continuous',
                  'continuous', 'uncontinuous']
 
+
 def train(dataset, labels, labelType):
     tree = createTree(dataset, labels, labelType)
-    # print(tree)
     return tree
+
+def test(tree, testFilePath, labels, labelType, dataset):
+    testDataset = pd.read_csv(testFilePath, header=None, sep=', ',engine='python')
+    testDataset = testDataset[~testDataset.isin(['?']).any(axis=1)]
+    testDataset = testDataset.values.tolist()
+    # clean(testDataset, dataset)
+    total = len(testDataset)
+    correct = 0
+    error = 0
+    i = 1
+    for line in testDataset:
+        print(i)
+        result = classify(tree, line, labels, labelType) + '.'
+        if result == line[-1]:
+            correct += 1
+        else:
+            print('{} is error;result:{},correct:{}'.format(line, result, line[-1]))
+            error += 1
+        i += 1
+    print('load {} lines data'.format(total))
+    print('Correct: {},Error: {},Accuracy: {}'.format(correct, error, correct / total))
+
 
 def forestTest(forest):
     testDataset = pd.read_csv('./adult/adult.test', header=None, sep=', ',engine='python')
@@ -50,6 +72,7 @@ def newTest(tree, testFilePath, labels, labelType):
         result = classify(tree, line, labels, labelType) + '.'
         testList.append(result)
     return testList
+
 
 def storeTree(tree, fileName):
     f = open(fileName, 'wb')

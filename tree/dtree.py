@@ -5,15 +5,6 @@ import pickle
 import pandas as pd
 
 
-# %%
-def cleanDataset(dataset):
-    for row in dataset:
-        for col in row:
-            if col == '?' or col == '':
-                print(row)
-                dataset.remove(row)
-
-
 def createDataset(filename):
     dataset = pd.read_csv(filename, header=None, sep=', ',engine='python')
     dataset = dataset[~dataset.isin(['?']).any(axis=1)]
@@ -32,7 +23,6 @@ def createDataset(filename):
 
 
 
-# %%
 def calculateEnt(dataset):
     classCount = {}
     n = len(dataset)
@@ -47,8 +37,6 @@ def calculateEnt(dataset):
         ent += -1 * (p * log2(p))
     return ent
 
-
-# %%
 def splitDataset(dataset, labelIdx, value):
     newDataset = []
     for vec in dataset:
@@ -72,7 +60,6 @@ def splitContinuousDataset(dataset, labelIdx, value):
     return biggerDataset, smallerDataset
 
 
-# %%
 def calGainRatioUnContinuous(dataset, labelIdx, ent):
     # 获取该特征的类别
     featureList = [vec[labelIdx] for vec in dataset]
@@ -96,7 +83,6 @@ def calGainRatioUnContinuous(dataset, labelIdx, ent):
     return gainRadio
 
 
-# %%
 def calGainRatioContinuous(dataset, labelIdx, ent):
     # 获取该连续特征的各种值
     valueList = [float(vec[labelIdx]) for vec in dataset]
@@ -130,7 +116,6 @@ def calGainRatioContinuous(dataset, labelIdx, ent):
     return bestGainRatio, bestSplitPoint
 
 
-# %%
 # 字典转换元组列表
 def dict2list(dic: dict):
     keys = dic.keys()
@@ -139,7 +124,6 @@ def dict2list(dic: dict):
     return lst
 
 
-# %%
 # 特征用完后，叶子节点未分类成功，选择出现次数最多的分类
 def majority(classList):
     classficationCount = {}
@@ -151,7 +135,6 @@ def majority(classList):
     return sortedClassCount[0][0]
 
 
-# %%
 def chooseBestSplit(dataset, labelType):
     # 选取的特征是否连续
     isContinuous = False
@@ -178,7 +161,6 @@ def chooseBestSplit(dataset, labelType):
     return bestFeatureIdx, bestSplitPoint, isContinuous
 
 
-# %%
 def createTree(dataset, labels, labelType):
     # 递归出口
     # 构造叶子节点分类
@@ -218,7 +200,7 @@ def createTree(dataset, labels, labelType):
     return tree
 
 
-# %%
+# 分类任务，在树上根据data的特征
 def classify(tree, data, labels, labelType):
     feature = list(tree.keys())[0]
     dic = tree[feature]
@@ -261,79 +243,26 @@ def classify(tree, data, labels, labelType):
     return classLabel
 
 
-def clean(dataset, mydate):  # 清洗掉测试集中出现了训练集中没有的值的情况
-    for i in [1, 3, 5, 6, 7, 8, 9, 13]:
-        set1 = set()
-        for row1 in mydate:
-            set1.add(row1[i])
-        for row2 in dataset:
-            if row2[i] not in set1:
-                dataset.remove(row2)
-        set1.clear()
+# # 清洗掉测试集中出现了训练集中没有的值的情况
+# def clean(dataset, mydate):  
+#     for i in [1, 3, 5, 6, 7, 8, 9, 13]:
+#         set1 = set()
+#         for row1 in mydate:
+#             set1.add(row1[i])
+#         for row2 in dataset:
+#             if row2[i] not in set1:
+#                 dataset.remove(row2)
+#         set1.clear()
 
 
-# %%
-def test(tree, testFilePath, labels, labelType, dataset):
-    testDataset = pd.read_csv(testFilePath, header=None, sep=', ',engine='python')
-    testDataset = testDataset[~testDataset.isin(['?']).any(axis=1)]
-    testDataset = testDataset.values.tolist()
-    clean(testDataset, dataset)
-    total = len(testDataset)
-    correct = 0
-    error = 0
-    i = 1
-    for line in testDataset:
-        print(i)
-        result = classify(tree, line, labels, labelType) + '.'
-        if result == line[-1]:
-            correct += 1
-        else:
-            print('{} is error;result:{},correct:{}'.format(line, result, line[-1]))
-            error += 1
-        i += 1
-    print('load {} lines data'.format(total))
-    print('Correct: {},Error: {},Accuracy: {}'.format(correct, error, correct / total))
 
 
-# %%
-def train(dataset, labels, labelType):
-    tree = createTree(dataset, labels, labelType)
-    return tree
-
-
-# %%
-def storeTree(tree, fileName):
-    f = open(fileName, 'wb')
-    pickle.dump(tree, f)
-    f.close()
-
-
-def getTree(fileName):
-    f = open(fileName, 'rb')
-    tree = pickle.load(f)
-    f.close()
-    return tree
-
-
-def newTest(tree, testFilePath, labels, labelType):
-    testDataset = pd.read_csv(testFilePath, header=None, sep=', ',engine='python')
-    testDataset = testDataset[~testDataset.isin(['?']).any(axis=1)]
-    testDataset = testDataset.values.tolist()
-    testList = []
-    total = len(testDataset)
-    for line in testDataset:
-        result = classify(tree, line, labels, labelType) + '.'
-        testList.append(result)
-    return testList
-
-
-# %%
-def main():
-    dataset, labels ,labelType= createDataset('../adult/adult.data')
-    nowLabels = labels[:]
-    nowLabelType =labelType[:]
-    print('start train')
-    tree = train(dataset, nowLabels ,nowLabelType)
-    storeTree(tree,'../model/tree.txt')
-    # tree = getTree('./model/true.txt')
-    test(tree,'../adult/adult.test',labels,labelType,dataset)
+# def main():
+#     dataset, labels ,labelType= createDataset('../adult/adult.data')
+#     nowLabels = labels[:]
+#     nowLabelType =labelType[:]
+#     print('start train')
+#     tree = train(dataset, nowLabels ,nowLabelType)
+#     storeTree(tree,'../model/tree.txt')
+#     # tree = getTree('./model/true.txt')
+#     test(tree,'../adult/adult.test',labels,labelType,dataset)

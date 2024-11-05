@@ -3,7 +3,7 @@ import pandas as pd
 import argparse
 import random
 import threading
-from tree import labels,labelType,forestTest
+from tree import labels,labelType,forestTest,storeTree
 import tree as t
 
 
@@ -53,6 +53,8 @@ class Manager:
         self.clientNum = clientNum
         self.lock = threading.Lock()
         self.batchSize = batchSize
+        
+        self.forest = []
         # self.dataLoaded = False
         # self.loadAndSplitData(self,filePath)
 
@@ -63,15 +65,18 @@ class Manager:
             dataset, labels, labelType = createSampleDataset(self.filePath,self.batchSize)
             return dataset, labels, labelType
 
-    def commitTest(self, test):
+    def commitTest(self, tree):#test
         # with self.lock:
-            self.ok+=1
-            self.testList.append(test)
+            # self.testList.append(test)
+            self.forest.append(tree)
+            storeTree(tree,fileName="./forest/tree_"+str(self.ok)+'.txt')
             print('now ok:',self.ok)
+            self.ok+=1
             # print('get test', test)
             if self.ok == self.clientNum:
-                print('all test is ok')
-                getAnswer(self.testList)
+                print('all tree is ok')
+                # getAnswer(self.testList)
+                forestTest(self.forest)
                 # self.stop()
 
     def stop(self):    
@@ -80,7 +85,7 @@ class Manager:
 
     def run(self):
         self.server = zerorpc.Server(self)
-        self.server.bind("tcp://0.0.0.0:4242")
+        self.server.bind("tcp://192.168.12.196:4242")
         print('server is start,wait connect...')
         self.server.run()
 

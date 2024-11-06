@@ -1,39 +1,14 @@
+'''
+    forest.py
+    单机版的随机森林训练测试
+'''
 import zerorpc
 import pandas as pd
 import argparse
 import random
 import threading
-from tree import labels,labelType,forestTest
+from tree import forestTest,createSampleDatasets
 import tree as t
-
-labels = ['age', 'workclass', 'fnlwgt', 'education', 'education-num',
-              'marital-status', 'occupation',
-              'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week',
-              'native-country']
-labelType = ['continuous', 'uncontinuous', 'continuous',
-                 'uncontinuous',
-                 'continuous', 'uncontinuous',
-                 'uncontinuous', 'uncontinuous', 'uncontinuous',
-                 'uncontinuous', 'continuous', 'continuous',
-                 'continuous', 'uncontinuous']
-
-def createSampleDataset(filename,batchSize):
-    random_numbers = random.sample(range(0, len(labelType)), 6)
-    dataset = pd.read_csv(filename, header=None, sep=', ',engine='python')
-    dataset = dataset[~dataset.isin(['?']).any(axis=1)]
-    dataset = dataset.sample(n=batchSize)
-    dataset = dataset.values.tolist()
-    sampleDataset = [[row[i] for i in random_numbers] for row in dataset]
-    for i in range(len(sampleDataset)):
-        sampleDataset[i].append(dataset[i][-1])
-    sampleLabels = []
-    sampleLabelType = []
-    for i in random_numbers:
-        sampleLabels.append(labels[i])
-        sampleLabelType.append(labelType[i])
-    return sampleDataset, sampleLabels, sampleLabelType
-
-
 
 if __name__ == '__main__':
     # 创建 ArgumentParser 对象
@@ -45,18 +20,27 @@ if __name__ == '__main__':
     # 解析命令行参数
     args = parser.parse_args()
 
+    # 存储决策树的随机森林数组
     forest = []
+
+    # 循环训练n棵决策树
     for i in range(args.num):
-        sampleDataset, sampleLabels, sampleLabelType = createSampleDataset(args.dataset,args.batch)
+        # 获取数据集
+        sampleDataset, sampleLabels, sampleLabelType = createSampleDatasets(args.dataset,args.batch)
         nowLabels = sampleLabels[:]
         nowLabelType = sampleLabelType[:]
         print('start',i)
+        # 训练
         tree = t.train(sampleDataset, nowLabels, nowLabelType)
         print('train ok',i)
+        # 将决策树存储到本地
         t.storeTree(tree,'./model/tree_'+str(i)+'.txt')
+        # 讲决策树加入随机森林数组
         forest.append(tree)
+        # 清除内存缓存
         del(tree)
-        del(sampleDataset)   
-
+        del(sampleDataset)  
+         
+    # 训练结束后执行测试
     forestTest(forest)
     

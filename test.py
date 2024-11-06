@@ -1,3 +1,7 @@
+'''
+    test.py
+    测试随机森林的性能，读取生成的决策树，执行测试
+'''
 import zerorpc
 import pandas as pd
 import argparse
@@ -15,7 +19,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     forest = []
-    for i in range(200):
+    for i in range(args.num):
         print('./model/tree_'+str(i))
         tree = t.getTree('./model/tree_'+str(i)+'.txt')
         forest.append(tree)

@@ -39,7 +39,7 @@ class Worker:
             print('train ok')
             # 调用CommitTree()方法将决策树模型发送给服务端
             self.client.commitTree(tree)
-            print('commit test ok')
+            print('commit tree ok')
             # 清除临时变量缓存
             del(tree)
             del(sampleDataset)

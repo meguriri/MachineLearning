@@ -20,8 +20,8 @@ if __name__ == '__main__':
 
     forest = []
     for i in range(args.num):
-        print('./model/tree_'+str(i))
-        tree = t.getTree('./model/tree_'+str(i)+'.txt')
+        print('./forest/tree_'+str(i))
+        tree = t.getTree('./forest/tree_'+str(i)+'.txt')
         forest.append(tree)
 
     forestTest(forest)

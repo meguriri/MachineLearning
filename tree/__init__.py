@@ -67,7 +67,7 @@ def forestTest(forest):
             correct += 1
         else:
             error += 1
-    print('Correct: {},Error: {},Accuracy: {}'.format(correct, error, correct / len(testDataset)))
+    print('Correct: {},Error: {},Accuracy: {:.2f}'.format(correct, error, correct / len(testDataset)))
 
 # 创建随机采样的数据集
 def createSampleDataset(filename,batchSize):

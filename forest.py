@@ -2,12 +2,8 @@
     forest.py
     单机版的随机森林训练测试
 '''
-import zerorpc
-import pandas as pd
 import argparse
-import random
-import threading
-from tree import forestTest,createSampleDatasets
+from tree import forestTest,createSampleDataset
 import tree as t
 
 if __name__ == '__main__':
@@ -26,7 +22,7 @@ if __name__ == '__main__':
     # 循环训练n棵决策树
     for i in range(args.num):
         # 获取数据集
-        sampleDataset, sampleLabels, sampleLabelType = createSampleDatasets(args.dataset,args.batch)
+        sampleDataset, sampleLabels, sampleLabelType = createSampleDataset(args.dataset,args.batch)
         nowLabels = sampleLabels[:]
         nowLabelType = sampleLabelType[:]
         print('start',i)
@@ -34,7 +30,7 @@ if __name__ == '__main__':
         tree = t.train(sampleDataset, nowLabels, nowLabelType)
         print('train ok',i)
         # 将决策树存储到本地
-        t.storeTree(tree,'./model/tree_'+str(i)+'.txt')
+        t.storeTree(tree,'./forest/tree_'+str(i)+'.txt')
         # 讲决策树加入随机森林数组
         forest.append(tree)
         # 清除内存缓存

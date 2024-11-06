@@ -2,11 +2,7 @@
     test.py
     测试随机森林的性能，读取生成的决策树，执行测试
 '''
-import zerorpc
-import pandas as pd
 import argparse
-import random
-import threading
 from tree import forestTest
 import tree as t
 

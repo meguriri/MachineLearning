@@ -3,12 +3,9 @@
     RPC服务端，负责向训练端发送训练数据集和参数，并接受训练端训练好的决策树模型
 '''
 import zerorpc
-import pandas as pd
 import argparse
-import random
 import threading
 from tree import forestTest,storeTree,createSampleDataset
-import tree as t
 
 class Manager:
     # 构造函数，传入训练集位置，训练端节点数，和训练数据大小

@@ -51,7 +51,7 @@ def test(tree, testFilePath, labels, labelType, dataset):
             print('{} is error;result:{},correct:{}'.format(line, result, line[-1]))
             error += 1
     # 输出正确错误个数，以及正确率
-    print('Correct: {},Error: {},Accuracy: {}'.format(correct, error, correct / total))
+    print('Correct: {},Error: {},Accuracy: {:.2f}'.format(correct, error, correct / total*100))
 
 
 # 随机森林测试
@@ -86,7 +86,7 @@ def forestTest(forest):
         else:
             error += 1
     # 输出正确错误个数，以及正确率
-    print('Correct: {},Error: {},Accuracy: {:.2f}'.format(correct, error, correct / len(testDataset)))
+    print('Correct: {},Error: {},Accuracy: {:.2f}'.format(correct, error, correct / len(testDataset)*100))
 
 # 创建随机采样的数据集
 def createSampleDataset(filename,batchSize):

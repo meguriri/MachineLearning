@@ -3,7 +3,6 @@
     RPC客户端，负责执行决策树模型训练任务，并将训练好的决策树发送给主节点（服务端）
 '''
 import zerorpc
-import pandas as pd
 import tree as t 
 
 

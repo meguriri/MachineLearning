@@ -1,4 +1,3 @@
-# %%
 from math import log2
 import operator
 import pickle
@@ -241,28 +240,3 @@ def classify(tree, data, labels, labelType):
             else:
                 classLabel = dic['<=' + str(splitPoint)]
     return classLabel
-
-
-# # 清洗掉测试集中出现了训练集中没有的值的情况
-# def clean(dataset, mydate):  
-#     for i in [1, 3, 5, 6, 7, 8, 9, 13]:
-#         set1 = set()
-#         for row1 in mydate:
-#             set1.add(row1[i])
-#         for row2 in dataset:
-#             if row2[i] not in set1:
-#                 dataset.remove(row2)
-#         set1.clear()
-
-
-
-
-# def main():
-#     dataset, labels ,labelType= createDataset('../adult/adult.data')
-#     nowLabels = labels[:]
-#     nowLabelType =labelType[:]
-#     print('start train')
-#     tree = train(dataset, nowLabels ,nowLabelType)
-#     storeTree(tree,'../model/tree.txt')
-#     # tree = getTree('./model/true.txt')
-#     test(tree,'../adult/adult.test',labels,labelType,dataset)
